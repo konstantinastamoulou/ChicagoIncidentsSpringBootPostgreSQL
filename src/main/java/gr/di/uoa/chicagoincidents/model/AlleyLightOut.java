@@ -6,27 +6,27 @@ import java.util.Date;
 
 @Entity
 @Table(name="alley_lights_out")
-public class AlleyLightsOut extends ServiceRequest{
+public class AlleyLightOut extends ServiceRequest{
 
-    public AlleyLightsOut() {
+    public AlleyLightOut() {
 
     }
 
-    public AlleyLightsOut(Date creationDate,
-                          String status,
-                          Date completionDate,
-                          String serviceRequestNumber,
-                          String serviceRequestType,
-                          String streetAddress,
-                          Integer zipCode,
-                          Double xCoordinate,
-                          Double yCoordinate,
-                          Integer ward,
-                          Integer policeDistrict,
-                          Integer communityArea,
-                          Double latitude,
-                          Double longitude,
-                          String location) {
+    public AlleyLightOut(Date creationDate,
+                         String status,
+                         Date completionDate,
+                         String serviceRequestNumber,
+                         String serviceRequestType,
+                         String streetAddress,
+                         Integer zipCode,
+                         Double xCoordinate,
+                         Double yCoordinate,
+                         Integer ward,
+                         Integer policeDistrict,
+                         Integer communityArea,
+                         Double latitude,
+                         Double longitude,
+                         String location) {
         super(creationDate,
                 status,
                 completionDate,

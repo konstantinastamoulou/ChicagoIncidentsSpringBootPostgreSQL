@@ -5,10 +5,35 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
+import javax.persistence.NamedStoredProcedureQueries;
+import javax.persistence.NamedStoredProcedureQuery;
 import javax.persistence.Table;
 import java.util.Date;
 
 @Entity
+//@NamedNativeQueries({
+//
+//        // A query using a dedicated SQL result set mapping (see below)
+//        @NamedNativeQuery(name = "ServiceRequest.asdf", //
+//                query = "SELECT public.asdf()", //
+//                resultSetMapping = "test")})
+//
+//@SqlResultSetMapping( //
+//        name = "test", //
+//        classes = @ConstructorResult(targetClass = Test.class, //
+//                columns = { //
+//                        @ColumnResult(name = "id", type = Long.class), //
+//                        @ColumnResult(name = "type", type = String.class) //
+//                }))
+
+@NamedStoredProcedureQueries({
+        @NamedStoredProcedureQuery(
+                name = "asdf",
+                procedureName = "asdf",
+                resultClasses = Test.class
+        )
+})
+
 @Table(name = "service_requests")
 @Inheritance(strategy = InheritanceType.JOINED)
 public class ServiceRequest {
@@ -67,7 +92,7 @@ public class ServiceRequest {
                           String location) {
         this.setCreationDate(creationDate);
         this.setStatus(status);
-        this.setCompletionDatee(completionDate);
+        this.setCompletionDate(completionDate);
         this.setServiceRequestNumber(serviceRequestNumber);
         this.setServiceRequestType(serviceRequestType);
         this.setStreetAddress(streetAddress);
@@ -105,7 +130,7 @@ public class ServiceRequest {
         return completionDate;
     }
 
-    public void setCompletionDatee(Date completionDate) {
+    public void setCompletionDate(Date completionDate) {
         this.completionDate = completionDate;
     }
 

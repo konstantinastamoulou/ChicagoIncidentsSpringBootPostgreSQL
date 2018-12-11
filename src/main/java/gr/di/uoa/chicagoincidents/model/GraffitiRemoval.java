@@ -5,8 +5,8 @@ import javax.persistence.Table;
 import java.util.Date;
 
 @Entity
-@Table(name="graffiti_removals")
-public class GraffitiRemoval extends ServiceRequest{
+@Table(name = "graffiti_removals")
+public class GraffitiRemoval extends ServiceRequest {
 
     private String SSA;
 
