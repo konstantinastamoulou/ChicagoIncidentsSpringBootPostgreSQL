@@ -7,7 +7,7 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface GarbageCartRepository extends CrudRepository<GarbageCart, Long>{
+public interface GarbageCartRepository extends CrudRepository<GarbageCart, Long> {
 
     Page<GarbageCart> findAll(Pageable pageable);
 

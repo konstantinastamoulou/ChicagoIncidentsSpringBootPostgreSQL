@@ -7,7 +7,7 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface PotHoleRepository extends CrudRepository<PotHole, Long>{
+public interface PotHoleRepository extends CrudRepository<PotHole, Long> {
 
     Page<PotHole> findAll(Pageable pageable);
 

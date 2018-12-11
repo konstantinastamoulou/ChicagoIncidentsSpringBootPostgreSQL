@@ -7,7 +7,7 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface AlleyLightOutRepository extends CrudRepository<AlleyLightOut, Long>{
+public interface AlleyLightOutRepository extends CrudRepository<AlleyLightOut, Long> {
 
     Page<AlleyLightOut> findAll(Pageable pageable);
 

@@ -7,7 +7,7 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface GraffitiRemovalRepository extends CrudRepository<GraffitiRemoval, Long>{
+public interface GraffitiRemovalRepository extends CrudRepository<GraffitiRemoval, Long> {
 
     Page<GraffitiRemoval> findAll(Pageable pageable);
 
