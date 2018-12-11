@@ -1,18 +1,30 @@
 package gr.di.uoa.chicagoincidents.controllers;
 
-import com.opencsv.CSVReader;
-import gr.di.uoa.chicagoincidents.model.AbandonedVehicle;
-import gr.di.uoa.chicagoincidents.repositories.AbandonedVehicleRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import gr.di.uoa.chicagoincidents.repositories.CountRequestsPerTypeRepository;
+import com.opencsv.CSVReader;
+import gr.di.uoa.chicagoincidents.model.AbandonedVehicle;
+import gr.di.uoa.chicagoincidents.model.CompFoo;
+import gr.di.uoa.chicagoincidents.repositories.AbandonedVehicleRepository;
+import gr.di.uoa.chicagoincidents.repositories.ServiceRequestRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.ModelAndView;
+
+import javax.persistence.EntityManager;
+import javax.persistence.ParameterMode;
+import javax.persistence.PersistenceContext;
+import javax.persistence.StoredProcedureQuery;
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.io.FileReader;
 import java.io.IOException;
@@ -20,9 +32,10 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.List;
 import java.util.Locale;
 
-@RestController
+@Controller
 @RequestMapping("/abandoned_vehicle")
 @CrossOrigin(origins = "*")
 public class AbandonedVehicleController {
@@ -31,7 +44,11 @@ public class AbandonedVehicleController {
     private AbandonedVehicleRepository abandonedVehicleRepository;
 
     @Autowired
-    private CountRequestsPerTypeRepository countRequestsPerTypeRepository;
+    private ServiceRequestRepository serviceRequestRepository;
+
+
+    @PersistenceContext
+    private EntityManager em;
 
     @Value("${pageSize}")
     private int pageSize;
@@ -80,6 +97,72 @@ public class AbandonedVehicleController {
 
         return ResponseEntity.status(HttpStatus.OK).body(jsonResult);
     }
+
+    @RequestMapping(value = { "/home" })
+    public ModelAndView lista(HttpServletRequest request) {
+        String test = "Alohaaaa my friends";
+        ModelAndView modelAndView = new ModelAndView("home");
+
+        modelAndView.addObject("test", test);
+        return modelAndView;
+    }
+
+
+    @RequestMapping(value = { "/search" })
+    public ModelAndView lista2(HttpServletRequest request) {
+        String test = "Aloheirosss my friends";
+        ModelAndView modelAndView = new ModelAndView("search");
+
+        modelAndView.addObject("test", test);
+        return modelAndView;
+    }
+
+
+    @RequestMapping(value = "/get", method = {RequestMethod.GET}, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<String> get() throws JsonProcessingException {
+
+        StoredProcedureQuery query = em
+                .createStoredProcedureQuery("getFoo")
+                .registerStoredProcedureParameter(1, Long.class, ParameterMode.IN)
+                .registerStoredProcedureParameter(2, Long.class, ParameterMode.IN)
+                .setParameter(1, 1L)
+                .setParameter(2, 1L);
+
+        query.execute();
+        List<CompFoo[]> postComments = query.getResultList();
+
+//        assertEquals(Long.valueOf(2), commentCount);
+
+
+//        Long t = serviceRequestRepository.bla();
+//            Long t = 93;
+//        List<ServiceRequest> serviceRequests;
+//        serviceRequests = serviceRequestRepository.sp1();
+//
+//        ObjectMapper mapper = new ObjectMapper();
+//        String jsonResult = mapper.writerWithDefaultPrettyPrinter()
+//                .writeValueAsString(serviceRequests);
+
+        return ResponseEntity.status(HttpStatus.OK).body("asdf : " + postComments.get(0)[0].getF1() + postComments.get(0)[0].getF2());
+    }
+
+//    @RequestMapping(value = "/test", method = {RequestMethod.GET}, produces = MediaType.APPLICATION_JSON_VALUE)
+//    public ResponseEntity<String> test(
+//            @RequestParam("page") int page
+//    ) throws JsonProcessingException {
+//
+//
+////        Iterable<CountRequestsPerTypeRepository> abandonedVehicles;
+////        abandonedVehicles = abandonedVehicleRepository.inAndOutTest(new Date(), new Date());
+//
+//        ObjectMapper mapper = new ObjectMapper();
+////        String jsonResult = mapper.writerWithDefaultPrettyPrinter()
+////                .writeValueAsString(abandonedVehicles);
+//
+//        return ResponseEntity.status(HttpStatus.OK).body(jsonResult);
+//    }
+
+
 
     @RequestMapping(value = "/insert_data", method = {RequestMethod.POST}, produces = MediaType.APPLICATION_JSON_VALUE)
     public void insertData() {
