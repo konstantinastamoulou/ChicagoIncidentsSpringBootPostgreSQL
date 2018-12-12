@@ -17,10 +17,12 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.text.DateFormat;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Locale;
@@ -54,13 +56,16 @@ public class PotHoleController {
 
     @RequestMapping(value = "/insert_data", method = {RequestMethod.POST}, produces = MediaType.APPLICATION_JSON_VALUE)
     public void insertData() {
-        String csvFile = "src/main/resources/311-service-requests-graffiti-removal.csv";
+        String csvFile = "src/main/resources/311-service-requests-pot-holes-reported.csv";
         PotHole potHole;
         CSVReader reader = null;
+        int errors = 0;
         try {
             reader = new CSVReader(new FileReader(csvFile));
             String[] line;
+            int counter = 1831256;
             while ((line = reader.readNext()) != null) {
+                try {
                 String creationDate = line[0].replace("T", " ");
                 DateFormat format = new SimpleDateFormat("YYYY-MM-dd HH:mm:ss", Locale.ENGLISH);
                 Calendar date = Calendar.getInstance();
@@ -93,11 +98,26 @@ public class PotHoleController {
                         line[15],           // String  SSA
                         (!line[7].isEmpty()) ? Integer.valueOf(line[7]) : null);  // Integer numOfPotholes
 
-                potHoleRepository.save(potHole);
+                String directory = "/Users/konstantinastamoulou/Documents/";
+                String filename = "ph.csv";
+                PrintWriter writer = new PrintWriter(new FileOutputStream(
+                  new File(directory + File.separator + filename),
+                  true /* append = true */));
+                writer.write(potHole.toCsvLine(counter));
+                writer.close();
+
+                filename = "sr.csv";
+                writer = new PrintWriter(new FileOutputStream(
+                  new File(directory + File.separator + filename),
+                  true /* append = true */));
+                writer.write((potHole.superToCsvLine(counter)));
+                writer.close();
+                counter++;
+            } catch (Exception ignored) {
+                errors++;
+            }
             }
         } catch (IOException e) {
-            e.printStackTrace();
-        } catch (ParseException e) {
             e.printStackTrace();
         }
     }

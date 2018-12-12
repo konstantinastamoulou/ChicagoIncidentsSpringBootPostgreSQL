@@ -3,8 +3,8 @@ package gr.di.uoa.chicagoincidents.controllers;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.opencsv.CSVReader;
-import gr.di.uoa.chicagoincidents.model.GraffitiRemoval;
-import gr.di.uoa.chicagoincidents.repositories.GraffitiRemovalRepository;
+import gr.di.uoa.chicagoincidents.model.RodentBaiting;
+import gr.di.uoa.chicagoincidents.repositories.RodentBaitingRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
@@ -28,42 +28,58 @@ import java.util.Calendar;
 import java.util.Locale;
 
 @RestController
-@RequestMapping("/graffiti_removal")
+@RequestMapping("/rodent_baiting")
 @CrossOrigin(origins = "*")
-public class GraffitiRemovalController {
+public class RodentBaitingController {
 
     @Autowired
-    private GraffitiRemovalRepository graffitiRemovalRepository;
+    private RodentBaitingRepository rodentBaitingRepository;
 
     @Value("${pageSize}")
     private int pageSize;
 
 
-    @RequestMapping(value = "/list", method = {RequestMethod.GET}, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<String> list(
-            @RequestParam("page") int page
+    @RequestMapping(value = "/create", method = {RequestMethod.POST}, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<String> create(
+
     ) throws JsonProcessingException {
 
-        Iterable<GraffitiRemoval> graffitiRemovals;
-        graffitiRemovals = graffitiRemovalRepository.findAll(PageRequest.of(page, pageSize));
+        RodentBaiting rodentBaiting = new RodentBaiting();
+
+        rodentBaitingRepository.save(rodentBaiting);
 
         ObjectMapper mapper = new ObjectMapper();
         String jsonResult = mapper.writerWithDefaultPrettyPrinter()
-                .writeValueAsString(graffitiRemovals);
+          .writeValueAsString(rodentBaiting);
+
+        return ResponseEntity.status(HttpStatus.OK).body(jsonResult);
+    }
+
+    @RequestMapping(value = "/list", method = {RequestMethod.GET}, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<String> list(
+      @RequestParam("page") int page
+    ) throws JsonProcessingException {
+
+        Iterable<RodentBaiting> rodentBaiting;
+        rodentBaiting = rodentBaitingRepository.findAll(PageRequest.of(page, pageSize));
+
+        ObjectMapper mapper = new ObjectMapper();
+        String jsonResult = mapper.writerWithDefaultPrettyPrinter()
+          .writeValueAsString(rodentBaiting);
 
         return ResponseEntity.status(HttpStatus.OK).body(jsonResult);
     }
 
     @RequestMapping(value = "/insert_data", method = {RequestMethod.POST}, produces = MediaType.APPLICATION_JSON_VALUE)
     public void insertData() {
-        String csvFile = "src/main/resources/311-service-requests-graffiti-removal.csv";
-        GraffitiRemoval graffitiRemoval;
+        String csvFile = "src/main/resources/311-service-requests-rodent-baiting.csv";
+        RodentBaiting rodentBaiting;
         CSVReader reader = null;
         int errors = 0;
         try {
             reader = new CSVReader(new FileReader(csvFile));
             String[] line;
-            int counter = 798795;
+            int counter = 2377115;
             while ((line = reader.readNext()) != null) {
                 try {
                     String creationDate = line[0].replace("T", " ");
@@ -77,43 +93,48 @@ public class GraffitiRemovalController {
                     date2.setTime(format2.parse(completionDate));
 
 
-                    graffitiRemoval = new GraffitiRemoval(
+                    rodentBaiting = new RodentBaiting(
                       date.getTime(),   // Date creationDate
                       line[1],          // String status
                       date2.getTime(),  // Date completionDate
                       line[3],          // String serviceRequestNumber
                       line[4],          // String serviceRequestType
-                      line[7],          // String streetAddress
-                      (!line[8].isEmpty()) ? Integer.valueOf(line[8]) : null,   // Integer zipCode
-                      (!line[9].isEmpty()) ? Double.valueOf(line[9]) : null,   // Double xCoordinate
-                      (!line[10].isEmpty()) ? Double.valueOf(line[10]) : null,   // Double yCoordinate
-                      (!line[11].isEmpty()) ? Integer.valueOf(line[11]) : null,   // Integer ward
-                      (!line[12].isEmpty()) ? Integer.valueOf(line[12]) : null,   // Integer policeDistrict
-                      (!line[13].isEmpty()) ? Integer.valueOf(line[13]) : null,   // Integer communityArea
-                      (!line[15].isEmpty()) ? Double.valueOf(line[15]) : null,   // Double latitude
-                      (!line[16].isEmpty()) ? Double.valueOf(line[16]) : null,   // Double longitude
-                      line[14],       // String location
-                      line[5],        // String surfaceType;
-                      line[6],        // String graffitiLocation
-                      line[14]);      // String SSA
+                      line[10],         // String streetAddress
+                      (!line[11].isEmpty()) ? Integer.valueOf(line[11]) : null,   // Integer zipCode
+                      (!line[12].isEmpty()) ? Double.valueOf(line[12]) : null,   // Double xCoordinate
+                      (!line[13].isEmpty()) ? Double.valueOf(line[12]) : null,   // Double yCoordinate
+                      (!line[14].isEmpty()) ? Integer.valueOf(line[14]) : null,   // Integer ward
+                      (!line[15].isEmpty()) ? Integer.valueOf(line[15]) : null,   // Integer policeDistrict
+                      (!line[16].isEmpty()) ? Integer.valueOf(line[16]) : null,   // Integer communityArea
+                      (!line[17].isEmpty()) ? Double.valueOf(line[17]) : null,   // Double latitude
+                      (!line[18].isEmpty()) ? Double.valueOf(line[18]) : null,   // Double longitude
+                      line[19],    //String location
+                      line[8],    //String current activity
+                      line[9],    //String mostRecentAction
+                      (!line[5].isEmpty()) ? Integer.valueOf(line[5]) : null,   // Integer numOfPremisesBaited
+                      (!line[6].isEmpty()) ? Integer.valueOf(line[6]) : null,   // Integer numOfPremisesWithGarbage
+                      (!line[7].isEmpty()) ? Integer.valueOf(line[7]) : null   // Integer numOfPremisesWithRats
+
+
+                    );
 
                     String directory = "/Users/konstantinastamoulou/Documents/";
-                    String filename = "gr.csv";
+                    String filename = "rb.csv";
                     PrintWriter writer = new PrintWriter(new FileOutputStream(
                       new File(directory + File.separator + filename),
                       true /* append = true */));
-                    writer.write(graffitiRemoval.toCsvLine(counter));
+                    writer.write(rodentBaiting.toCsvLine(counter));
                     writer.close();
 
                     filename = "sr.csv";
                     writer = new PrintWriter(new FileOutputStream(
                       new File(directory + File.separator + filename),
                       true /* append = true */));
-                    writer.write((graffitiRemoval.superToCsvLine(counter)));
+                    writer.write((rodentBaiting.superToCsvLine(counter)));
                     writer.close();
                     counter++;
-                }
-                catch (Exception ignored) {
+
+                } catch (Exception ignored) {
                     errors++;
                 }
             }
@@ -121,4 +142,5 @@ public class GraffitiRemovalController {
             e.printStackTrace();
         }
     }
+
 }

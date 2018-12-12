@@ -3,8 +3,8 @@ package gr.di.uoa.chicagoincidents.controllers;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.opencsv.CSVReader;
-import gr.di.uoa.chicagoincidents.model.GraffitiRemoval;
-import gr.di.uoa.chicagoincidents.repositories.GraffitiRemovalRepository;
+import gr.di.uoa.chicagoincidents.model.TreeDebris;
+import gr.di.uoa.chicagoincidents.repositories.TreeDebrisRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
@@ -27,43 +27,60 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Locale;
 
+
 @RestController
-@RequestMapping("/graffiti_removal")
+@RequestMapping("/tree_debris")
 @CrossOrigin(origins = "*")
-public class GraffitiRemovalController {
+public class TreeDebrisController {
 
     @Autowired
-    private GraffitiRemovalRepository graffitiRemovalRepository;
+    private TreeDebrisRepository treeDebrisRepository;
 
     @Value("${pageSize}")
     private int pageSize;
 
 
-    @RequestMapping(value = "/list", method = {RequestMethod.GET}, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<String> list(
-            @RequestParam("page") int page
+    @RequestMapping(value = "/create", method = {RequestMethod.POST}, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<String> create(
+
     ) throws JsonProcessingException {
 
-        Iterable<GraffitiRemoval> graffitiRemovals;
-        graffitiRemovals = graffitiRemovalRepository.findAll(PageRequest.of(page, pageSize));
+        TreeDebris treeDebris = new TreeDebris();
+
+        treeDebrisRepository.save(treeDebris);
 
         ObjectMapper mapper = new ObjectMapper();
         String jsonResult = mapper.writerWithDefaultPrettyPrinter()
-                .writeValueAsString(graffitiRemovals);
+          .writeValueAsString(treeDebris);
+
+        return ResponseEntity.status(HttpStatus.OK).body(jsonResult);
+    }
+
+    @RequestMapping(value = "/list", method = {RequestMethod.GET}, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<String> list(
+      @RequestParam("page") int page
+    ) throws JsonProcessingException {
+
+        Iterable<TreeDebris> treeTrim;
+        treeTrim = treeDebrisRepository.findAll(PageRequest.of(page, pageSize));
+
+        ObjectMapper mapper = new ObjectMapper();
+        String jsonResult = mapper.writerWithDefaultPrettyPrinter()
+          .writeValueAsString(treeTrim);
 
         return ResponseEntity.status(HttpStatus.OK).body(jsonResult);
     }
 
     @RequestMapping(value = "/insert_data", method = {RequestMethod.POST}, produces = MediaType.APPLICATION_JSON_VALUE)
     public void insertData() {
-        String csvFile = "src/main/resources/311-service-requests-graffiti-removal.csv";
-        GraffitiRemoval graffitiRemoval;
+        String csvFile = "src/main/resources/311-service-requests-tree-debris.csv";
+        TreeDebris treeDebris;
         CSVReader reader = null;
         int errors = 0;
         try {
             reader = new CSVReader(new FileReader(csvFile));
             String[] line;
-            int counter = 798795;
+            int counter = 3943258;
             while ((line = reader.readNext()) != null) {
                 try {
                     String creationDate = line[0].replace("T", " ");
@@ -77,43 +94,45 @@ public class GraffitiRemovalController {
                     date2.setTime(format2.parse(completionDate));
 
 
-                    graffitiRemoval = new GraffitiRemoval(
-                      date.getTime(),   // Date creationDate
-                      line[1],          // String status
-                      date2.getTime(),  // Date completionDate
-                      line[3],          // String serviceRequestNumber
-                      line[4],          // String serviceRequestType
-                      line[7],          // String streetAddress
-                      (!line[8].isEmpty()) ? Integer.valueOf(line[8]) : null,   // Integer zipCode
-                      (!line[9].isEmpty()) ? Double.valueOf(line[9]) : null,   // Double xCoordinate
-                      (!line[10].isEmpty()) ? Double.valueOf(line[10]) : null,   // Double yCoordinate
-                      (!line[11].isEmpty()) ? Integer.valueOf(line[11]) : null,   // Integer ward
-                      (!line[12].isEmpty()) ? Integer.valueOf(line[12]) : null,   // Integer policeDistrict
-                      (!line[13].isEmpty()) ? Integer.valueOf(line[13]) : null,   // Integer communityArea
+                    treeDebris = new TreeDebris(
+                      date.getTime(),     // Date creationDate
+                      line[1],            // String status
+                      date2.getTime(),    // Date completionDate
+                      line[3],            // String serviceRequestNumber
+                      line[4],            // String serviceRequestType
+                      line[8],            // String street address
+                      (!line[9].isEmpty()) ? Integer.valueOf(line[9]) : null,   // Integer zipCode
+                      (!line[10].isEmpty()) ? Double.valueOf(line[10]) : null,   // Double xCoordinate
+                      (!line[11].isEmpty()) ? Double.valueOf(line[11]) : null,   // Double yCoordinate
+                      (!line[12].isEmpty()) ? Integer.valueOf(line[12]) : null,   // Integer ward
+                      (!line[13].isEmpty()) ? Integer.valueOf(line[13]) : null,   // Integer policeDistrict
+                      (!line[14].isEmpty()) ? Integer.valueOf(line[14]) : null,   // Integer communityArea
                       (!line[15].isEmpty()) ? Double.valueOf(line[15]) : null,   // Double latitude
                       (!line[16].isEmpty()) ? Double.valueOf(line[16]) : null,   // Double longitude
-                      line[14],       // String location
-                      line[5],        // String surfaceType;
-                      line[6],        // String graffitiLocation
-                      line[14]);      // String SSA
+                      line[17],             // String location
+                      line[5],              // String if yes
+                      line[6],              // String location of trees
+                      line[7]               // String Most Recent Action
+
+                    );
 
                     String directory = "/Users/konstantinastamoulou/Documents/";
-                    String filename = "gr.csv";
+                    String filename = "td.csv";
                     PrintWriter writer = new PrintWriter(new FileOutputStream(
                       new File(directory + File.separator + filename),
                       true /* append = true */));
-                    writer.write(graffitiRemoval.toCsvLine(counter));
+                    writer.write(treeDebris.toCsvLine(counter));
                     writer.close();
 
                     filename = "sr.csv";
                     writer = new PrintWriter(new FileOutputStream(
                       new File(directory + File.separator + filename),
                       true /* append = true */));
-                    writer.write((graffitiRemoval.superToCsvLine(counter)));
+                    writer.write((treeDebris.superToCsvLine(counter)));
                     writer.close();
                     counter++;
-                }
-                catch (Exception ignored) {
+
+                } catch (Exception ignored) {
                     errors++;
                 }
             }
@@ -121,4 +140,5 @@ public class GraffitiRemovalController {
             e.printStackTrace();
         }
     }
+
 }

@@ -3,8 +3,8 @@ package gr.di.uoa.chicagoincidents.controllers;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.opencsv.CSVReader;
-import gr.di.uoa.chicagoincidents.model.AlleyLightOut;
-import gr.di.uoa.chicagoincidents.repositories.AlleyLightOutRepository;
+import gr.di.uoa.chicagoincidents.model.StreetLightsOneOut;
+import gr.di.uoa.chicagoincidents.repositories.StreetLightsOneOutRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
@@ -28,71 +28,58 @@ import java.util.Calendar;
 import java.util.Locale;
 
 @RestController
-@RequestMapping("/alley_light_out")
+@RequestMapping("/street_lights_one_out")
 @CrossOrigin(origins = "*")
-public class AlleyLightOutController {
+public class StreetLightsOneOutController {
 
     @Autowired
-    private AlleyLightOutRepository alleyLightOutRepository;
+    private StreetLightsOneOutRepository streetLightsOneOutRepository;
 
     @Value("${pageSize}")
     private int pageSize;
 
 
-//    @RequestMapping(value="/create", method={RequestMethod.POST},produces = MediaType.APPLICATION_JSON_VALUE)
-//    public ResponseEntity<String> create(
-//            @RequestParam() @Valid String current_activity,
-//            @RequestParam("most_recent_action") @Valid String most_recent_action,
-//            @RequestParam("SSA") @Valid String SSA,
-//            @RequestParam("license_plate") @Valid String license_plate,
-//            @RequestParam("vehicle_model") @Valid String vehicle_model,
-//            @RequestParam("vehicle_color") @Valid String vehicle_color,
-//            @RequestParam("days_vehicle_reported_as_parked") @Valid String days_vehicle_reported_as_parked
-//    ) throws JsonProcessingException {
-//
-//        AbandonedVehicle abandonedVehicle = new AbandonedVehicle();
-//        abandonedVehicle.setCurrentActivity(current_activity);
-//        abandonedVehicle.setMostRecentAction(most_recent_action);
-//        abandonedVehicle.setSSA(SSA);
-//        abandonedVehicle.setLicensePlate(license_plate);
-//        abandonedVehicle.setVehicleModel(vehicle_model);
-//        abandonedVehicle.setVehicleColor(vehicle_color);
-//        abandonedVehicle.setDaysVehicleReportedAsParked(days_vehicle_reported_as_parked);
-//
-//        abandonedVehicleRepository.save(abandonedVehicle);
-//
-//        ObjectMapper mapper = new ObjectMapper();
-//        String jsonResult = mapper.writerWithDefaultPrettyPrinter()
-//                .writeValueAsString(abandonedVehicle);
-//
-//        return ResponseEntity.status(HttpStatus.OK).body(jsonResult);
-//    }
+    @RequestMapping(value = "/create", method = {RequestMethod.POST}, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<String> create(
 
-    @RequestMapping(value="/list", method={RequestMethod.GET},produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<String> list(
-            @RequestParam("page") int page
     ) throws JsonProcessingException {
 
-        Iterable<AlleyLightOut> alleyLightsOut;
-        alleyLightsOut = alleyLightOutRepository.findAll(PageRequest.of(page, pageSize));
+        StreetLightsOneOut streetLightsOneOut = new StreetLightsOneOut();
+
+        streetLightsOneOutRepository.save(streetLightsOneOut);
 
         ObjectMapper mapper = new ObjectMapper();
         String jsonResult = mapper.writerWithDefaultPrettyPrinter()
-                .writeValueAsString(alleyLightsOut);
+          .writeValueAsString(streetLightsOneOut);
+
+        return ResponseEntity.status(HttpStatus.OK).body(jsonResult);
+    }
+
+    @RequestMapping(value = "/list", method = {RequestMethod.GET}, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<String> list(
+      @RequestParam("page") int page
+    ) throws JsonProcessingException {
+
+        Iterable<StreetLightsOneOut> streetLightsOneOut;
+        streetLightsOneOut = streetLightsOneOutRepository.findAll(PageRequest.of(page, pageSize));
+
+        ObjectMapper mapper = new ObjectMapper();
+        String jsonResult = mapper.writerWithDefaultPrettyPrinter()
+          .writeValueAsString(streetLightsOneOut);
 
         return ResponseEntity.status(HttpStatus.OK).body(jsonResult);
     }
 
     @RequestMapping(value = "/insert_data", method = {RequestMethod.POST}, produces = MediaType.APPLICATION_JSON_VALUE)
     public void insertData() {
-        String csvFile = "src/main/resources/311-service-requests-alley-lights-out.csv";
-        AlleyLightOut alleyLightOut;
+        String csvFile = "src/main/resources/311-service-requests-street-lights-one-out.csv";
+        StreetLightsOneOut streetLightsOneOut;
         CSVReader reader = null;
         int errors = 0;
         try {
-            int counter = 204010;
             reader = new CSVReader(new FileReader(csvFile));
             String[] line;
+            int counter = 3130514;
             while ((line = reader.readNext()) != null) {
                 try {
                     String creationDate = line[0].replace("T", " ");
@@ -106,7 +93,7 @@ public class AlleyLightOutController {
                     date2.setTime(format2.parse(completionDate));
 
 
-                    alleyLightOut = new AlleyLightOut(
+                    streetLightsOneOut = new StreetLightsOneOut(
                       date.getTime(),   // Date creationDate
                       line[1],          // String status
                       date2.getTime(),  // Date completionDate
@@ -121,26 +108,26 @@ public class AlleyLightOutController {
                       (!line[11].isEmpty()) ? Integer.valueOf(line[11]) : null,   // Integer communityArea
                       (!line[12].isEmpty()) ? Double.valueOf(line[12]) : null,   // Double latitude
                       (!line[13].isEmpty()) ? Double.valueOf(line[13]) : null,   // Double longitude
-                      line[14]);         // String location
-
+                      line[14]         // String location
+                    );
 
                     String directory = "/Users/konstantinastamoulou/Documents/";
-                    String filename = "al.csv";
+                    String filename = "sloo.csv";
                     PrintWriter writer = new PrintWriter(new FileOutputStream(
                       new File(directory + File.separator + filename),
                       true /* append = true */));
-                    writer.write(alleyLightOut.toCsvLine(counter));
+                    writer.write(streetLightsOneOut.toCsvLine(counter));
                     writer.close();
 
                     filename = "sr.csv";
                     writer = new PrintWriter(new FileOutputStream(
                       new File(directory + File.separator + filename),
                       true /* append = true */));
-                    writer.write((alleyLightOut.superToCsvLine(counter)));
+                    writer.write((streetLightsOneOut.superToCsvLine(counter)));
                     writer.close();
                     counter++;
-                }
-                catch (Exception ignored) {
+
+                } catch (Exception ignored) {
                     errors++;
                 }
             }
@@ -148,4 +135,5 @@ public class AlleyLightOutController {
             e.printStackTrace();
         }
     }
+
 }
