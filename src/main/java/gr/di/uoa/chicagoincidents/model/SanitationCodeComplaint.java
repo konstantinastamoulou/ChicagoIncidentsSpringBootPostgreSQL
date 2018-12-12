@@ -57,4 +57,12 @@ public class SanitationCodeComplaint extends ServiceRequest {
         this.natureOfCodeViolation = natureOfCodeViolation;
     }
 
+    public String toCsvLine(int id) {
+        return encapsulateWithQuotes(this.natureOfCodeViolation) + ";"
+          + id +"\n";
+    }
+
+    public String superToCsvLine(int id) {
+        return super.toCsvLine(id);
+    }
 }

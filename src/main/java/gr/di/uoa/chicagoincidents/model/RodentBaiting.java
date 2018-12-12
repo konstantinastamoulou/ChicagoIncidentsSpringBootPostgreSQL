@@ -109,4 +109,17 @@ public class RodentBaiting extends ServiceRequest{
         this.numOfPremisesWithRats = numOfPremisesWithRats;
     }
 
+    public String toCsvLine(int id) {
+        return encapsulateWithQuotes(this.currentActivity) + ";"
+          + encapsulateWithQuotes(this.mostRecentAction) + ";"
+          + encapsulateWithQuotes(this.numOfPremisesBaited == null ? 0 : this.numOfPremisesBaited) + ";"
+          + encapsulateWithQuotes(this.numOfPremisesWithGarbage == null ? 0 : this.numOfPremisesWithGarbage) + ";"
+          + encapsulateWithQuotes(this.numOfPremisesWithRats == null ? 0 : this.numOfPremisesWithRats) + ";"
+          + id +"\n";
+    }
+
+    public String superToCsvLine(int id) {
+        return super.toCsvLine(id);
+    }
+
 }

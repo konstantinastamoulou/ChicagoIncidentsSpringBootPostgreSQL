@@ -133,4 +133,15 @@ public class AbandonedVehicle extends ServiceRequest{
         this.daysVehicleReportedAsParked = daysVehicleReportedAsParked;
     }
 
+    public String toCsvLine(int id) {
+        return encapsulateWithQuotes(this.SSA) + ";" + encapsulateWithQuotes(this.currentActivity) + ";"
+                + encapsulateWithQuotes(this.daysVehicleReportedAsParked) + ";" + encapsulateWithQuotes(this.licensePlate) + ";"
+                + encapsulateWithQuotes(this.mostRecentAction) + ";" + encapsulateWithQuotes(this.vehicleColor) + ";"
+                + encapsulateWithQuotes(this.vehicleModel) + ";" + id +"\n";
+    }
+
+    public String superToCsvLine(int id) {
+        return super.toCsvLine(id);
+    }
+
 }

@@ -10,10 +10,9 @@ public class TreeDebris extends ServiceRequest{
 
     private String currentActivity;
 
-    private String mostRecentAction;
-
     private String debrisLocation;
 
+    private String mostRecentAction;
 
     public TreeDebris() {
     }
@@ -82,4 +81,14 @@ public class TreeDebris extends ServiceRequest{
         this.debrisLocation = debrisLocation;
     }
 
+    public String toCsvLine(int id) {
+        return encapsulateWithQuotes(this.currentActivity) + ";"
+          + encapsulateWithQuotes(this.debrisLocation) + ";"
+          + encapsulateWithQuotes(this.mostRecentAction) + ";"
+          + id +"\n";
+    }
+
+    public String superToCsvLine(int id) {
+        return super.toCsvLine(id);
+    }
 }

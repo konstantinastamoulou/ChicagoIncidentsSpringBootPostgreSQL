@@ -5,8 +5,8 @@ import javax.persistence.Table;
 import java.util.Date;
 
 @Entity
-@Table(name="tree_trims")
-public class TreeTrim extends ServiceRequest{
+@Table(name = "tree_trims")
+public class TreeTrim extends ServiceRequest {
 
     private String treesLocation;
 
@@ -55,6 +55,15 @@ public class TreeTrim extends ServiceRequest{
 
     public void setTreesLocation(String treesLocation) {
         this.treesLocation = treesLocation;
+    }
+
+    public String toCsvLine(int id) {
+        return encapsulateWithQuotes(this.treesLocation) + ";"
+          + id +"\n";
+    }
+
+    public String superToCsvLine(int id) {
+        return super.toCsvLine(id);
     }
 
 }

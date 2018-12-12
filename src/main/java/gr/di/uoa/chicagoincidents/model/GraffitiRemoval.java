@@ -83,4 +83,12 @@ public class GraffitiRemoval extends ServiceRequest {
         this.graffitiLocation = graffitiLocation;
     }
 
+    public String toCsvLine(int id) {
+        return encapsulateWithQuotes(this.SSA) + ";" + encapsulateWithQuotes(this.surfaceType) + ";"
+          + encapsulateWithQuotes(this.graffitiLocation) + id +"\n";
+    }
+
+    public String superToCsvLine(int id) {
+        return super.toCsvLine(id);
+    }
 }

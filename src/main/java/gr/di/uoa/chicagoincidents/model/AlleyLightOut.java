@@ -45,5 +45,12 @@ public class AlleyLightOut extends ServiceRequest{
 
     }
 
+    public String toCsvLine(int id) {
+        return id +"\n";
+    }
+
+    public String superToCsvLine(int id) {
+        return super.toCsvLine(id);
+    }
 
 }

@@ -1,7 +1,5 @@
 package gr.di.uoa.chicagoincidents.model;
 
-import io.swagger.models.auth.In;
-
 import javax.persistence.Entity;
 import javax.persistence.Table;
 import java.util.Date;
@@ -96,5 +94,14 @@ public class PotHole extends ServiceRequest{
         this.numOfPotholes = numOfPotholes;
     }
 
+    public String toCsvLine(int id) {
+        return encapsulateWithQuotes(this.SSA) + ";" + encapsulateWithQuotes(this.currentActivity) + ";"
+          + encapsulateWithQuotes(this.mostRecentAction) + ";" + encapsulateWithQuotes(this.numOfPotholes == null ? 0 : this.numOfPotholes) + ";"
+          + id +"\n";
+    }
+
+    public String superToCsvLine(int id) {
+        return super.toCsvLine(id);
+    }
 
 }

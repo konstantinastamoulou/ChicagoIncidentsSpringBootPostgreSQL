@@ -1,8 +1,6 @@
 package gr.di.uoa.chicagoincidents.model;
 
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
 import javax.persistence.Table;
 import java.util.Date;
 
@@ -98,5 +96,13 @@ public class GarbageCart extends ServiceRequest{
         this.blackCardsDelivered = blackCardsDelivered;
     }
 
+    public String toCsvLine(int id) {
+        return encapsulateWithQuotes(this.SSA) + ";" + encapsulateWithQuotes(this.blackCardsDelivered == null ? 0 : this.blackCardsDelivered) + ";"
+                + encapsulateWithQuotes(this.currentActivity) + ";" + encapsulateWithQuotes(this.mostRecentAction) + ";"
+                + id +"\n";
+    }
 
+    public String superToCsvLine(int id) {
+        return super.toCsvLine(id);
+    }
 }

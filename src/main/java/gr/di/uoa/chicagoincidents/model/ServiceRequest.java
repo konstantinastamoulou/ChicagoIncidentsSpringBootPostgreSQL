@@ -5,35 +5,10 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
-import javax.persistence.NamedStoredProcedureQueries;
-import javax.persistence.NamedStoredProcedureQuery;
 import javax.persistence.Table;
 import java.util.Date;
 
 @Entity
-//@NamedNativeQueries({
-//
-//        // A query using a dedicated SQL result set mapping (see below)
-//        @NamedNativeQuery(name = "ServiceRequest.asdf", //
-//                query = "SELECT public.asdf()", //
-//                resultSetMapping = "test")})
-//
-//@SqlResultSetMapping( //
-//        name = "test", //
-//        classes = @ConstructorResult(targetClass = Test.class, //
-//                columns = { //
-//                        @ColumnResult(name = "id", type = Long.class), //
-//                        @ColumnResult(name = "type", type = String.class) //
-//                }))
-
-@NamedStoredProcedureQueries({
-        @NamedStoredProcedureQuery(
-                name = "asdf",
-                procedureName = "asdf",
-                resultClasses = Test.class
-        )
-})
-
 @Table(name = "service_requests")
 @Inheritance(strategy = InheritanceType.JOINED)
 public class ServiceRequest {
@@ -240,6 +215,22 @@ public class ServiceRequest {
 
     public void setLocation(String location) {
         this.location = location;
+    }
+
+    public String toCsvLine(int id) {
+        return id + ";" + encapsulateWithQuotes(this.communityArea == null ? 0 : this.communityArea) + ";"
+                + encapsulateWithQuotes(this.completionDate) + ";" + encapsulateWithQuotes(this.creationDate) + ";"
+                + encapsulateWithQuotes(this.latitude == null ? 0.0 : this.latitude) + ";" + encapsulateWithQuotes(this.location) + ";"
+                + encapsulateWithQuotes(this.longitude == null ? 0.0 : this.longitude) + ";" + encapsulateWithQuotes(this.policeDistrict == null ? 0 : this.policeDistrict) + ";"
+                + encapsulateWithQuotes(this.serviceRequestNumber) + ";" + encapsulateWithQuotes(this.serviceRequestType) + ";"
+                + encapsulateWithQuotes(this.status) + ";" + encapsulateWithQuotes(this.streetAddress) + ";"
+                + encapsulateWithQuotes(this.ward == null ? 0 : this.ward) + ";" + encapsulateWithQuotes(this.xCoordinate == null ? 0.0 : this.xCoordinate) + ";"
+                + encapsulateWithQuotes(this.yCoordinate == null ? 0.0 : this.yCoordinate) + ";" + encapsulateWithQuotes(this.zipCode == null ? 0 : this.zipCode) + "\n";
+    }
+
+    protected String encapsulateWithQuotes(Object value) {
+        String v = value == null ? "" : value.toString();
+        return v.replace(";", "");
     }
 }
 
