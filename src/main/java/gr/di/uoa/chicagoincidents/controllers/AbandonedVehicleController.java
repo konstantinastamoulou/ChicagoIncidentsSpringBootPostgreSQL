@@ -19,9 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.persistence.EntityManager;
-import javax.persistence.ParameterMode;
 import javax.persistence.PersistenceContext;
-import javax.persistence.StoredProcedureQuery;
 import javax.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -29,11 +27,9 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.text.DateFormat;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
@@ -51,71 +47,17 @@ public class AbandonedVehicleController {
     @Value("${pageSize}")
     private int pageSize;
 
-//    @RequestMapping(value = "/create", method = {RequestMethod.POST}, produces = MediaType.APPLICATION_JSON_VALUE)
-//    public ResponseEntity<String> create(
-//
-//
-//            @RequestParam("current_activity") @Valid Double xCoordinate,
-//            @RequestParam("current_activity") @Valid Integer zipCode,
-//            @RequestParam("current_activity") @Valid Double xCoordinate,
-//            @RequestParam("current_activity") @Valid Double yCoordinate,
-//            @RequestParam("current_activity") @Valid Integer communityArea,
-//            @RequestParam("current_activity") @Valid Integer ward,
-//            @RequestParam("current_activity") @Valid Integer policeDistrict,
-//            @RequestParam("current_activity") @Valid String latitude,
-//            @RequestParam("current_activity") @Valid String longitude,
-//            @RequestParam("current_activity") @Valid String location,
-//
-//            @RequestParam("current_activity") @Valid String currentActivity,
-//            @RequestParam("most_recent_action") @Valid String mostRecentAction,
-//            @RequestParam("SSA") @Valid String SSA,
-//            @RequestParam("license_plate") @Valid String licensePlate,
-//            @RequestParam("vehicle_model") @Valid String vehicleModel,
-//            @RequestParam("vehicle_color") @Valid String vehicleColor,
-//            @RequestParam("days_vehicle_reported_as_parked") @Valid String daysVehicleReportedAsParked
-//    ) throws JsonProcessingException {
-//
-//        AbandonedVehicle abandonedVehicle = new AbandonedVehicle(Date creationDate,
-//                String status,
-//                Date completionDate,
-//                String serviceRequestNumber,
-//                String serviceRequestType,
-//                String streetAddress,
-//                Integer zipCode,
-//                Double xCoordinate,
-//                Double yCoordinate,
-//                Integer ward,
-//                Integer policeDistrict,
-//                Integer communityArea,
-//                Double latitude,
-//                Double longitude,
-//                String location,
-//                String currentActivity,
-//                String mostRecentAction,
-//                String SSA,
-//                String licensePlate,
-//                String vehicleModel,
-//                String vehicleColor,
-//                String daysVehicleReportedAsParked);
-//
-//
-//
-//        abandonedVehicle.setCurrentActivity(current_activity);
-//        abandonedVehicle.setMostRecentAction(most_recent_action);
-//        abandonedVehicle.setSSA(SSA);
-//        abandonedVehicle.setLicensePlate(license_plate);
-//        abandonedVehicle.setVehicleModel(vehicle_model);
-//        abandonedVehicle.setVehicleColor(vehicle_color);
-//        abandonedVehicle.setDaysVehicleReportedAsParked(days_vehicle_reported_as_parked);
-//
-//        abandonedVehicleRepository.save(abandonedVehicle);
-//
-//        ObjectMapper mapper = new ObjectMapper();
-//        String jsonResult = mapper.writerWithDefaultPrettyPrinter()
-//                .writeValueAsString(abandonedVehicle);
-//
-//        return ResponseEntity.status(HttpStatus.OK).body(jsonResult);
-//    }
+    @RequestMapping(value = "/create", method = {RequestMethod.POST}, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<String> create(AbandonedVehicle abandonedVehicle
+    ) throws JsonProcessingException {
+
+        abandonedVehicleRepository.save(abandonedVehicle);
+
+        ObjectMapper mapper = new ObjectMapper();
+        String jsonResult = mapper.writerWithDefaultPrettyPrinter()
+                .writeValueAsString(abandonedVehicle);
+        return ResponseEntity.status(HttpStatus.OK).body(jsonResult);
+    }
 
     @RequestMapping(value = "/list", method = {RequestMethod.GET}, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<String> list(
@@ -149,41 +91,6 @@ public class AbandonedVehicleController {
 
         modelAndView.addObject("test", test);
         return modelAndView;
-    }
-    
-
-    @RequestMapping(value = "/test", method = {RequestMethod.GET}, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<String> test() throws JsonProcessingException {
-
-        SimpleDateFormat dateformat3 = new SimpleDateFormat("dd/MM/yyyy");
-
-        Date date1 = null;
-        Date date2 = null;
-
-        try {
-            date1 = dateformat3.parse("17/07/2001");
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-        try {
-            date2 = dateformat3.parse("15/10/2018");
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-
-        StoredProcedureQuery query = em
-                .createStoredProcedureQuery("find_total_requests_on_date_range")
-                .registerStoredProcedureParameter(1, Date.class, ParameterMode.IN)
-                .registerStoredProcedureParameter(2, Date.class, ParameterMode.IN)
-                .setParameter(1, date1)
-                .setParameter(2, date2);
-
-        query.execute();
-        List requestCountPerType = query.getResultList();
-
-
-
-        return ResponseEntity.status(HttpStatus.OK).body("asdf : ");
     }
 
     @RequestMapping(value = "/insert_data", method = {RequestMethod.POST}, produces = MediaType.APPLICATION_JSON_VALUE)
