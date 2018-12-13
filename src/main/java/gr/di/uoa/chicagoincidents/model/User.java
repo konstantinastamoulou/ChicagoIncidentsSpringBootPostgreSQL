@@ -1,21 +1,33 @@
 package gr.di.uoa.chicagoincidents.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.validation.constraints.NotBlank;
 
 @Entity
 @Table(name = "users")
 public class User {
 
-    String firstName;
+    @Id
+    @GeneratedValue
+    private Long id;
 
-    String lastName;
+    private String firstName;
 
-    String username;
+    private String lastName;
 
-    String password;
+    @NotBlank
+    private String username;
 
-    String email;
+    @NotBlank
+    @JsonIgnore
+    private String password;
+
+    private String email;
 
     public User() {
 
@@ -73,4 +85,11 @@ public class User {
         this.email = email;
     }
 
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
 }

@@ -185,6 +185,34 @@ public class ServiceRequestController {
         return ResponseEntity.status(HttpStatus.OK).body("asdf : ");
     }
 
+    // Store Function no7
+    @RequestMapping(value = "/test7", method = {RequestMethod.GET}, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<String> test7() throws JsonProcessingException {
+
+        StoredProcedureQuery query = em
+          .createStoredProcedureQuery("find_second_most_common_color_in_abandoned_vehicles");
+
+        query.execute();
+
+        List<String> rodentBaitingBaited = query.getResultList();
+
+        return ResponseEntity.status(HttpStatus.OK).body("asdf : ");
+    }
+
+    // Store Function no8
+    @RequestMapping(value = "/test8", method = {RequestMethod.GET}, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<String> test8() throws JsonProcessingException {
+
+        StoredProcedureQuery query = em
+          .createStoredProcedureQuery("find_second_most_common_color_in_abandoned_vehicles");
+
+        query.execute();
+
+        List<String> rodentBaitingBaited = query.getResultList();
+
+        return ResponseEntity.status(HttpStatus.OK).body("asdf : ");
+    }
+
     // Store Function no9
     @RequestMapping(value = "/test9", method = {RequestMethod.GET}, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<String> test9() throws JsonProcessingException {

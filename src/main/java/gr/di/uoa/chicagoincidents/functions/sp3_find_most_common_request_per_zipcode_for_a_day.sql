@@ -1,10 +1,11 @@
-CREATE TYPE avg_completion_per_type AS (request_count interval, service_request_type varchar);
+CREATE TYPE request_type_zip_code AS (service_request_type varchar, zip_code varchar);
 
-CREATE FUNCTION avg_completion_per_type_for_date_range(start_date date, end_date date)
-	RETURNS avg_completion_per_type AS $$
-  select avg(completion_date-creation_date) as avg_completion_time,service_request_type
+CREATE FUNCTION find_most_common_request_per_zipcode_for_a_day(input_date date)
+	RETURNS request_type_zip_code AS $$
+  select service_request_type, zip_code
   from service_requests
-  where creation_date between start_date and end_date
-  group by service_request_type;
+  where creation_date = input_date
+  group by zip_code, service_request_type
+  order by count(*) desc;
 $$ LANGUAGE SQL;
 
