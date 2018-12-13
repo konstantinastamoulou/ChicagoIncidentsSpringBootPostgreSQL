@@ -127,13 +127,13 @@ public class AbandonedVehicleController {
                             line[4],          // String serviceRequestType
                             line[11],         // String streetAddress
                             (!line[12].isEmpty()) ? Integer.valueOf(line[12]) : null,   // Integer zipCode
-                            (!line[13].isEmpty()) ? Double.valueOf(line[13]) : null,   // Double xCoordinate
-                            (!line[14].isEmpty()) ? Double.valueOf(line[14]) : null,   // Double yCoordinate
+                            (!line[13].isEmpty()) ? Double.valueOf(line[13])  : null,   // Double xCoordinate
+                            (!line[14].isEmpty()) ? Double.valueOf(line[14])  : null,   // Double yCoordinate
                             (!line[15].isEmpty()) ? Integer.valueOf(line[15]) : null,   // Integer ward
                             (!line[16].isEmpty()) ? Integer.valueOf(line[16]) : null,   // Integer policeDistrict
                             (!line[17].isEmpty()) ? Integer.valueOf(line[17]) : null,   // Integer communityArea
-                            (!line[19].isEmpty()) ? Double.valueOf(line[19]) : null,   // Double latitude
-                            (!line[20].isEmpty()) ? Double.valueOf(line[20]) : null,   // Double longitude
+                            (!line[19].isEmpty()) ? Double.valueOf(line[19])  : null,   // Double latitude
+                            (!line[20].isEmpty()) ? Double.valueOf(line[20])  : null,   // Double longitude
                             line[21],         // String location
                             line[8],          // String currentActivity
                             line[9],          // String mostRecentAction
