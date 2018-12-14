@@ -1,11 +1,14 @@
 package gr.di.uoa.chicagoincidents.model.datatypes;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import java.util.Date;
 
 public class RequestCountPerDayForDateRange {
 
     private Long requestCount;
 
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private Date creationDate;
 
     public RequestCountPerDayForDateRange() {}
