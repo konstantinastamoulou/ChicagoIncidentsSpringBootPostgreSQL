@@ -1,9 +1,12 @@
 package gr.di.uoa.chicagoincidents.controllers;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import gr.di.uoa.chicagoincidents.model.datatypes.RodentBaitingBaited;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import gr.di.uoa.chicagoincidents.model.datatypes.LicensePlateMoreThanOnce;
+import gr.di.uoa.chicagoincidents.model.datatypes.RequestCountPerType;
 import gr.di.uoa.chicagoincidents.model.datatypes.RodentBaitingWithGarbage;
 import gr.di.uoa.chicagoincidents.model.datatypes.RodentBaitingWithRats;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -11,6 +14,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.persistence.EntityManager;
 import javax.persistence.ParameterMode;
@@ -29,42 +33,29 @@ public class ServiceRequestController {
     @PersistenceContext
     private EntityManager em;
 
-    // Store Function no1
-    @RequestMapping(value = "/test1", method = {RequestMethod.GET}, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<String> test1() throws JsonProcessingException {
-
-        SimpleDateFormat dateformat3 = new SimpleDateFormat("dd/MM/yyyy");
-
-        Date date1 = null;
-        Date date2 = null;
-
-        try {
-            date1 = dateformat3.parse("17/07/2001");
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-        try {
-            date2 = dateformat3.parse("15/10/2018");
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
+    @RequestMapping(value = "/sp1/find_total_requests_on_date_range", method = {RequestMethod.GET}, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<String> sp1(@RequestParam("start_date") @DateTimeFormat(pattern="MM/dd/yyyy") Date start_date,
+                                      @RequestParam("end_date") @DateTimeFormat(pattern="MM/dd/yyyy") Date end_date ) throws JsonProcessingException {
 
         StoredProcedureQuery query = em
           .createStoredProcedureQuery("find_total_requests_on_date_range")
           .registerStoredProcedureParameter(1, Date.class, ParameterMode.IN)
           .registerStoredProcedureParameter(2, Date.class, ParameterMode.IN)
-          .setParameter(1, date1)
-          .setParameter(2, date2);
-
+          .setParameter(1, start_date)
+          .setParameter(2, end_date);
         query.execute();
-        List requestCountPerType = query.getResultList();
 
-        return ResponseEntity.status(HttpStatus.OK).body("asdf : ");
+        List<RequestCountPerType> requestCountPerTypes = query.getResultList();
+
+        ObjectMapper mapper = new ObjectMapper();
+        String jsonResult = mapper.writerWithDefaultPrettyPrinter()
+          .writeValueAsString(requestCountPerTypes);
+
+        return ResponseEntity.status(HttpStatus.OK).body(jsonResult);
     }
 
-    // Store Function no2
-    @RequestMapping(value = "/test2", method = {RequestMethod.GET}, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<String> test2() throws JsonProcessingException {
+    @RequestMapping(value = "/sp2/find_total_requests_for_specific_type_per_day_for_date_range", method = {RequestMethod.GET}, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<String> sp2() {
 
         SimpleDateFormat dateformat3 = new SimpleDateFormat("dd/MM/yyyy");
 
@@ -97,9 +88,8 @@ public class ServiceRequestController {
         return ResponseEntity.status(HttpStatus.OK).body("asdf : ");
     }
 
-    // Store Function no3
-    @RequestMapping(value = "/test3", method = {RequestMethod.GET}, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<String> test3() throws JsonProcessingException {
+    @RequestMapping(value = "/sp3/find_most_common_request_per_zipcode_for_a_day", method = {RequestMethod.GET}, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<String> sp3() {
 
         SimpleDateFormat dateformat3 = new SimpleDateFormat("dd/MM/yyyy");
 
@@ -121,9 +111,8 @@ public class ServiceRequestController {
         return ResponseEntity.status(HttpStatus.OK).body("asdf : ");
     }
 
-    // Store Function no4
-    @RequestMapping(value = "/test4", method = {RequestMethod.GET}, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<String> test4() throws JsonProcessingException {
+    @RequestMapping(value = "/sp4/avg_completion_per_type_for_date_range", method = {RequestMethod.GET}, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<String> sp4() {
 
         SimpleDateFormat dateformat3 = new SimpleDateFormat("dd/MM/yyyy");
 
@@ -153,9 +142,8 @@ public class ServiceRequestController {
         return ResponseEntity.status(HttpStatus.OK).body("asdf : ");
     }
 
-    // Store Function no5
-    @RequestMapping(value = "/test5", method = {RequestMethod.GET}, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<String> test5() throws JsonProcessingException {
+    @RequestMapping(value = "/sp5/avg_completion_per_type_for_date_range", method = {RequestMethod.GET}, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<String> sp5() {
 
         SimpleDateFormat dateformat3 = new SimpleDateFormat("dd/MM/yyyy");
 
@@ -185,66 +173,76 @@ public class ServiceRequestController {
         return ResponseEntity.status(HttpStatus.OK).body("asdf : ");
     }
 
-    // Store Function no7
-    @RequestMapping(value = "/test7", method = {RequestMethod.GET}, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<String> test7() throws JsonProcessingException {
+    @RequestMapping(value = "/sp7/find_license_plates_in_abandoned_vehicles_more_than_once", method = {RequestMethod.GET}, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<String> sp7() throws JsonProcessingException {
 
         StoredProcedureQuery query = em
-          .createStoredProcedureQuery("find_second_most_common_color_in_abandoned_vehicles");
-
+          .createStoredProcedureQuery("find_license_plates_in_abandoned_vehicles_more_than_once");
         query.execute();
 
         List<String> rodentBaitingBaited = query.getResultList();
 
-        return ResponseEntity.status(HttpStatus.OK).body("asdf : ");
+        ObjectMapper mapper = new ObjectMapper();
+        String jsonResult = mapper.writerWithDefaultPrettyPrinter()
+          .writeValueAsString(rodentBaitingBaited);
+
+        return ResponseEntity.status(HttpStatus.OK).body(jsonResult);
     }
 
-    // Store Function no8
-    @RequestMapping(value = "/test8", method = {RequestMethod.GET}, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<String> test8() throws JsonProcessingException {
+    @RequestMapping(value = "/sp8/find_second_most_common_color_in_abandoned_vehicles", method = {RequestMethod.GET}, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<String> sp8() throws JsonProcessingException {
 
         StoredProcedureQuery query = em
           .createStoredProcedureQuery("find_second_most_common_color_in_abandoned_vehicles");
-
         query.execute();
 
-        List<String> rodentBaitingBaited = query.getResultList();
+        List<LicensePlateMoreThanOnce> licensePlateMoreThanOnce = query.getResultList();
 
-        return ResponseEntity.status(HttpStatus.OK).body("asdf : ");
+        ObjectMapper mapper = new ObjectMapper();
+        String jsonResult = mapper.writerWithDefaultPrettyPrinter()
+          .writeValueAsString(licensePlateMoreThanOnce);
+
+        return ResponseEntity.status(HttpStatus.OK).body(jsonResult);
     }
 
-    // Store Function no9
-    @RequestMapping(value = "/test9", method = {RequestMethod.GET}, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<String> test9() throws JsonProcessingException {
+    @RequestMapping(value = "/sp9/find_rodent_baitings_number_of_premises_baited_less_than", method = {RequestMethod.GET}, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<String> sp9(@RequestParam("max_number") Integer max_number) throws JsonProcessingException {
 
         StoredProcedureQuery query = em
           .createStoredProcedureQuery("find_rodent_baitings_number_of_premises_baited_less_than")
           .registerStoredProcedureParameter(1, Integer.class, ParameterMode.IN)
-          .setParameter(1, 6);
+          .setParameter(1, max_number);
         query.execute();
 
-        List<RodentBaitingBaited> rodentBaitingBaited = query.getResultList();
+        List rodentBaitingBaited = query.getResultList();
 
-        return ResponseEntity.status(HttpStatus.OK).body("asdf : ");
+        ObjectMapper mapper = new ObjectMapper();
+        String jsonResult = mapper.writerWithDefaultPrettyPrinter()
+          .writeValueAsString(rodentBaitingBaited);
+
+        return ResponseEntity.status(HttpStatus.OK).body(jsonResult);
     }
 
-    // Store Function no10
-    @RequestMapping(value = "/test10", method = {RequestMethod.GET}, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<String> test10() throws JsonProcessingException {
+    @RequestMapping(value = "/sp10/find_rodent_baitings_number_of_premises_with_garbage_less_than", method = {RequestMethod.GET}, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<String> sp10() throws JsonProcessingException {
 
         StoredProcedureQuery query = em
           .createStoredProcedureQuery("find_rodent_baitings_number_of_premises_with_garbage_less_than")
           .registerStoredProcedureParameter(1, Integer.class, ParameterMode.IN)
           .setParameter(1, 5);
         query.execute();
+
         List<RodentBaitingWithGarbage> rodentBaitingWithGarbages = query.getResultList();
 
-        return ResponseEntity.status(HttpStatus.OK).body("asdf : ");
+        ObjectMapper mapper = new ObjectMapper();
+        String jsonResult = mapper.writerWithDefaultPrettyPrinter()
+          .writeValueAsString(rodentBaitingWithGarbages);
+
+        return ResponseEntity.status(HttpStatus.OK).body(jsonResult);
     }
 
-    // Store Function no11
-    @RequestMapping(value = "/test11", method = {RequestMethod.GET}, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<String> test11() throws JsonProcessingException {
+    @RequestMapping(value = "/sp11/find_rodent_baitings_number_of_premises_with_rats_less_than", method = {RequestMethod.GET}, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<String> sp11() throws JsonProcessingException {
 
         StoredProcedureQuery query = em
           .createStoredProcedureQuery("find_rodent_baitings_number_of_premises_with_rats_less_than")
@@ -254,7 +252,11 @@ public class ServiceRequestController {
 
         List<RodentBaitingWithRats> rodentBaitingWithRats = query.getResultList();
 
-        return ResponseEntity.status(HttpStatus.OK).body("asdf : " + rodentBaitingWithRats.get(0).getRequestNumber());
+        ObjectMapper mapper = new ObjectMapper();
+        String jsonResult = mapper.writerWithDefaultPrettyPrinter()
+          .writeValueAsString(rodentBaitingWithRats);
+
+        return ResponseEntity.status(HttpStatus.OK).body(jsonResult);
     }
 
 }

@@ -4,7 +4,12 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.opencsv.CSVReader;
 import gr.di.uoa.chicagoincidents.model.AbandonedVehicle;
+import gr.di.uoa.chicagoincidents.model.UserHistory;
 import gr.di.uoa.chicagoincidents.repositories.AbandonedVehicleRepository;
+import gr.di.uoa.chicagoincidents.repositories.UserHistoryRepository;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
@@ -16,7 +21,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.servlet.ModelAndView;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -30,8 +34,10 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/abandoned_vehicle")
@@ -41,21 +47,42 @@ public class AbandonedVehicleController {
     @Autowired
     private AbandonedVehicleRepository abandonedVehicleRepository;
 
+    @Autowired
+    private UserHistoryRepository userHistoryRepository;
+
     @PersistenceContext
     private EntityManager em;
 
     @Value("${pageSize}")
     private int pageSize;
 
+    @ApiOperation(value = "av creation", nickname = "createAV")
+    @ApiImplicitParams({
+      @ApiImplicitParam(
+        name = "status",
+        value = "status",
+        required = true,
+        dataType = "string",
+        paramType = "query",
+        defaultValue = "Completed - Dup"),
+      @ApiImplicitParam(
+        name = "vehicleModel",
+        value = "vehicleModel",
+        required = true,
+        dataType = "string",
+        paramType = "query",
+        defaultValue = "Jeep/Cherokee")
+    })
     @RequestMapping(value = "/create", method = {RequestMethod.POST}, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<String> create(AbandonedVehicle abandonedVehicle
-    ) throws JsonProcessingException {
+    public ResponseEntity<String> create(HttpServletRequest request, AbandonedVehicle abandonedVehicle, @RequestParam(required = true) Long uid) throws JsonProcessingException {
+
+        Optional.ofNullable(uid).ifPresent(id -> userHistoryRepository.save(new UserHistory(id, request.getRequestURI(), new Date())));
 
         abandonedVehicleRepository.save(abandonedVehicle);
 
         ObjectMapper mapper = new ObjectMapper();
         String jsonResult = mapper.writerWithDefaultPrettyPrinter()
-                .writeValueAsString(abandonedVehicle);
+          .writeValueAsString(abandonedVehicle);
         return ResponseEntity.status(HttpStatus.OK).body(jsonResult);
     }
 
@@ -72,25 +99,6 @@ public class AbandonedVehicleController {
                 .writeValueAsString(abandonedVehicles);
 
         return ResponseEntity.status(HttpStatus.OK).body(jsonResult);
-    }
-
-    @RequestMapping(value = {"/home"})
-    public ModelAndView lista(HttpServletRequest request) {
-        String test = "Alohaaaa my friends";
-        ModelAndView modelAndView = new ModelAndView("home");
-
-        modelAndView.addObject("test", test);
-        return modelAndView;
-    }
-
-
-    @RequestMapping(value = {"/search"})
-    public ModelAndView lista2(HttpServletRequest request) {
-        String test = "Aloheirosss my friends";
-        ModelAndView modelAndView = new ModelAndView("search");
-
-        modelAndView.addObject("test", test);
-        return modelAndView;
     }
 
     @RequestMapping(value = "/insert_data", method = {RequestMethod.POST}, produces = MediaType.APPLICATION_JSON_VALUE)
