@@ -4,22 +4,22 @@ import java.util.Date;
 
 public class RequestCountPerDayForDateRange {
 
-    private Integer requestCount;
+    private Long requestCount;
 
     private Date creationDate;
 
     public RequestCountPerDayForDateRange() {}
 
-    public RequestCountPerDayForDateRange(Integer requestCount, Date creationDate) {
+    public RequestCountPerDayForDateRange(Long requestCount, Date creationDate) {
         this.requestCount = requestCount;
         this.creationDate = creationDate;
     }
 
-    public Integer getRequestCount() {
+    public Long getRequestCount() {
         return requestCount;
     }
 
-    public void setRequestCount(Integer requestCount) {
+    public void setRequestCount(Long requestCount) {
         this.requestCount = requestCount;
     }
 

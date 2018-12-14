@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.validation.Valid;
 import javax.xml.bind.DatatypeConverter;
 import java.security.MessageDigest;
 import java.security.SecureRandom;
@@ -102,8 +103,17 @@ public class UserController {
         Optional<User> user = userRepository.findByUsernameAndPassword(username, hashed);
 
         return user.isPresent()
-          ? ResponseEntity.status(HttpStatus.OK).body(new ObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(user)) : ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("");
+          ? ResponseEntity.status(HttpStatus.OK).body(new ObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(user.get())) : ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("");
 
+    }
+
+    @RequestMapping(value="/findMatching", method={RequestMethod.GET},produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<String> findAll(
+      @RequestParam("username") @Valid String username
+    ) {
+        return userRepository.findByUsername(username).isPresent()
+          ? ResponseEntity.status(HttpStatus.OK).body("{\"message\":\"userexists\"}")
+          : ResponseEntity.status(HttpStatus.OK).body("");
     }
 
 }

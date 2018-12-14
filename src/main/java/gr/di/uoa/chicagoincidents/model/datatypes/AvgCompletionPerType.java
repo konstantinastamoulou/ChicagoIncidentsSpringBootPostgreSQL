@@ -1,10 +1,8 @@
 package gr.di.uoa.chicagoincidents.model.datatypes;
 
-import java.util.Date;
-
 public class AvgCompletionPerType {
 
-    private Date completionTime;
+    private Integer completionTime;
 
     private String requestType;
 
@@ -12,7 +10,7 @@ public class AvgCompletionPerType {
     public AvgCompletionPerType() {
     }
 
-    public AvgCompletionPerType(String requestType, Date completionTime) {
+    public AvgCompletionPerType(String requestType, Integer completionTime) {
         this.completionTime = completionTime;
         this.requestType = requestType;
     }
@@ -26,11 +24,11 @@ public class AvgCompletionPerType {
     }
 
 
-    public Date getCompletionTime() {
+    public Integer getCompletionTime() {
         return completionTime;
     }
 
-    public void setCompletionTime(Date completionTime) {
+    public void setCompletionTime(Integer completionTime) {
         this.completionTime = completionTime;
     }
 }
