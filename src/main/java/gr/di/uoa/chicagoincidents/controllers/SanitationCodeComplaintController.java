@@ -4,7 +4,10 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.opencsv.CSVReader;
 import gr.di.uoa.chicagoincidents.model.SanitationCodeComplaint;
+import gr.di.uoa.chicagoincidents.model.UserHistory;
 import gr.di.uoa.chicagoincidents.repositories.SanitationCodeComplaintRepository;
+import gr.di.uoa.chicagoincidents.repositories.UserHistoryRepository;
+import gr.di.uoa.chicagoincidents.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
@@ -17,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileReader;
@@ -25,7 +29,9 @@ import java.io.PrintWriter;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.Locale;
+import java.util.Optional;
 
 
 @RestController
@@ -36,23 +42,29 @@ public class SanitationCodeComplaintController {
     @Autowired
     private SanitationCodeComplaintRepository sanitationCodeComplaintRepository;
 
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private UserHistoryRepository userHistoryRepository;
+
     @Value("${pageSize}")
     private int pageSize;
 
-
     @RequestMapping(value = "/create", method = {RequestMethod.POST}, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<String> create(
+    public ResponseEntity<String> create(SanitationCodeComplaint sanitationCodeComplaint,
+                                         HttpServletRequest request,
+                                         @RequestParam Long uid,
+                                         @RequestParam String token) throws JsonProcessingException {
 
-    ) throws JsonProcessingException {
-
-        SanitationCodeComplaint sanitationCodeComplaint = new SanitationCodeComplaint();
+        if (!userRepository.findByIdAndToken(uid, token).isPresent()) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("");
+        Optional.ofNullable(uid).ifPresent(id -> userHistoryRepository.save(new UserHistory(id, request.getRequestURI(), new Date())));
 
         sanitationCodeComplaintRepository.save(sanitationCodeComplaint);
 
         ObjectMapper mapper = new ObjectMapper();
         String jsonResult = mapper.writerWithDefaultPrettyPrinter()
           .writeValueAsString(sanitationCodeComplaint);
-
         return ResponseEntity.status(HttpStatus.OK).body(jsonResult);
     }
 

@@ -2,6 +2,7 @@ package gr.di.uoa.chicagoincidents.controllers;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import gr.di.uoa.chicagoincidents.model.UserHistory;
 import gr.di.uoa.chicagoincidents.model.datatypes.AvgCompletionPerType;
 import gr.di.uoa.chicagoincidents.model.datatypes.LicensePlateMoreThanOnce;
 import gr.di.uoa.chicagoincidents.model.datatypes.RequestCountPerDayForDateRange;
@@ -11,6 +12,8 @@ import gr.di.uoa.chicagoincidents.model.datatypes.RodentBaitingBaited;
 import gr.di.uoa.chicagoincidents.model.datatypes.RodentBaitingWithGarbage;
 import gr.di.uoa.chicagoincidents.model.datatypes.RodentBaitingWithRats;
 import gr.di.uoa.chicagoincidents.model.datatypes.SsaCount;
+import gr.di.uoa.chicagoincidents.repositories.UserHistoryRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -25,20 +28,29 @@ import javax.persistence.EntityManager;
 import javax.persistence.ParameterMode;
 import javax.persistence.PersistenceContext;
 import javax.persistence.StoredProcedureQuery;
+import javax.servlet.http.HttpServletRequest;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 @Controller
 @RequestMapping("/service_requests")
 @CrossOrigin(origins = "*")
 public class ServiceRequestController {
 
+    @Autowired
+    UserHistoryRepository userHistoryRepository;
+
     @PersistenceContext
     private EntityManager em;
 
     @RequestMapping(value = "/sp1/find_total_requests_on_date_range", method = {RequestMethod.GET}, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<String> sp1(@RequestParam("start_date") @DateTimeFormat(pattern="yyyy-MM-dd") Date start_date,
-                                      @RequestParam("end_date") @DateTimeFormat(pattern="yyyy-MM-dd") Date end_date ) throws JsonProcessingException {
+                                      @RequestParam("end_date") @DateTimeFormat(pattern="yyyy-MM-dd") Date end_date,
+                                      HttpServletRequest request,
+                                      @RequestParam(required = false) Long uid) throws JsonProcessingException {
+
+        Optional.ofNullable(uid).ifPresent(id -> userHistoryRepository.save(new UserHistory(id, request.getRequestURI(), new Date())));
 
         StoredProcedureQuery query = em
           .createStoredProcedureQuery("find_total_requests_on_date_range")
@@ -60,7 +72,11 @@ public class ServiceRequestController {
     @RequestMapping(value = "/sp2/find_total_requests_for_specific_type_per_day_for_date_range", method = {RequestMethod.GET}, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<String> sp2(@RequestParam("service_request_type") String service_request_type,
                                         @RequestParam("start_date") @DateTimeFormat(pattern="yyyy-MM-dd") Date start_date,
-                                      @RequestParam("end_date") @DateTimeFormat(pattern="yyyy-MM-dd") Date end_date ) throws JsonProcessingException {
+                                      @RequestParam("end_date") @DateTimeFormat(pattern="yyyy-MM-dd") Date end_date,
+                                      HttpServletRequest request,
+                                      @RequestParam(required = false) Long uid) throws JsonProcessingException {
+
+        Optional.ofNullable(uid).ifPresent(id -> userHistoryRepository.save(new UserHistory(id, request.getRequestURI(), new Date())));
 
         StoredProcedureQuery query = em
           .createStoredProcedureQuery("find_total_requests_for_specific_type_per_day_for_date_range")
@@ -82,7 +98,11 @@ public class ServiceRequestController {
     }
 
     @RequestMapping(value = "/sp3/find_most_common_request_per_zipcode_for_a_day", method = {RequestMethod.GET}, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<String> sp3(@RequestParam("input_date") @DateTimeFormat(pattern="yyyy-MM-dd") Date input_date) throws JsonProcessingException {
+    public ResponseEntity<String> sp3(@RequestParam("input_date") @DateTimeFormat(pattern="yyyy-MM-dd") Date input_date,
+                                      HttpServletRequest request,
+                                      @RequestParam(required = false) Long uid) throws JsonProcessingException {
+
+        Optional.ofNullable(uid).ifPresent(id -> userHistoryRepository.save(new UserHistory(id, request.getRequestURI(), new Date())));
 
         StoredProcedureQuery query = em
           .createStoredProcedureQuery("find_most_common_request_per_zipcode_for_a_day")
@@ -101,7 +121,11 @@ public class ServiceRequestController {
 
     @RequestMapping(value = "/sp4/avg_completion_per_type_for_date_range", method = {RequestMethod.GET}, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<String> sp4(@RequestParam("start_date") @DateTimeFormat(pattern="yyyy-MM-dd") Date start_date,
-                                      @RequestParam("end_date") @DateTimeFormat(pattern="yyyy-MM-dd") Date end_date) throws JsonProcessingException {
+                                      @RequestParam("end_date") @DateTimeFormat(pattern="yyyy-MM-dd") Date end_date,
+                                      HttpServletRequest request,
+                                      @RequestParam(required = false) Long uid) throws JsonProcessingException {
+
+        Optional.ofNullable(uid).ifPresent(id -> userHistoryRepository.save(new UserHistory(id, request.getRequestURI(), new Date())));
 
         StoredProcedureQuery query = em
           .createStoredProcedureQuery("avg_completion_per_type_for_date_range")
@@ -130,7 +154,11 @@ public class ServiceRequestController {
                                       @RequestParam("c1") Double c1,
                                       @RequestParam("c2") Double c2,
                                       @RequestParam("d1") Double d1,
-                                      @RequestParam("d2") Double d2) throws JsonProcessingException {
+                                      @RequestParam("d2") Double d2,
+                                      HttpServletRequest request,
+                                      @RequestParam(required = false) Long uid) throws JsonProcessingException {
+
+        Optional.ofNullable(uid).ifPresent(id -> userHistoryRepository.save(new UserHistory(id, request.getRequestURI(), new Date())));
 
         StoredProcedureQuery query = em
           .createStoredProcedureQuery("find_most_common_request_on_bounding_box")
@@ -163,7 +191,11 @@ public class ServiceRequestController {
 
     @RequestMapping(value = "/sp6/find_top5_SSA_on_date_range", method = {RequestMethod.GET}, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<String> sp6(@RequestParam("start_date") @DateTimeFormat(pattern="yyyy-MM-dd") Date start_date,
-                                      @RequestParam("end_date") @DateTimeFormat(pattern="yyyy-MM-dd") Date end_date) throws JsonProcessingException {
+                                      @RequestParam("end_date") @DateTimeFormat(pattern="yyyy-MM-dd") Date end_date,
+                                      HttpServletRequest request,
+                                      @RequestParam(required = false) Long uid) throws JsonProcessingException {
+
+        Optional.ofNullable(uid).ifPresent(id -> userHistoryRepository.save(new UserHistory(id, request.getRequestURI(), new Date())));
 
         StoredProcedureQuery query = em
           .createStoredProcedureQuery("find_top5_SSA_on_date_range")
@@ -183,7 +215,10 @@ public class ServiceRequestController {
     }
 
     @RequestMapping(value = "/sp7/find_license_plates_in_abandoned_vehicles_more_than_once", method = {RequestMethod.GET}, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<String> sp7() throws JsonProcessingException {
+    public ResponseEntity<String> sp7(HttpServletRequest request,
+                                      @RequestParam(required = false) Long uid) throws JsonProcessingException {
+
+        Optional.ofNullable(uid).ifPresent(id -> userHistoryRepository.save(new UserHistory(id, request.getRequestURI(), new Date())));
 
         StoredProcedureQuery query = em
           .createStoredProcedureQuery("find_license_plates_in_abandoned_vehicles_more_than_once");
@@ -199,23 +234,30 @@ public class ServiceRequestController {
     }
 
     @RequestMapping(value = "/sp8/find_second_most_common_color_in_abandoned_vehicles", method = {RequestMethod.GET}, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<String> sp8() throws JsonProcessingException {
+    public ResponseEntity<String> sp8(HttpServletRequest request,
+                                      @RequestParam(required = false) Long uid) throws JsonProcessingException {
+
+        Optional.ofNullable(uid).ifPresent(id -> userHistoryRepository.save(new UserHistory(id, request.getRequestURI(), new Date())));
 
         StoredProcedureQuery query = em
           .createStoredProcedureQuery("find_second_most_common_color_in_abandoned_vehicles");
         query.execute();
 
-        List<LicensePlateMoreThanOnce> licensePlateMoreThanOnce = query.getResultList();
+        List data = query.getResultList();
 
         ObjectMapper mapper = new ObjectMapper();
         String jsonResult = mapper.writerWithDefaultPrettyPrinter()
-          .writeValueAsString(licensePlateMoreThanOnce);
+          .writeValueAsString(data);
 
         return ResponseEntity.status(HttpStatus.OK).body(jsonResult);
     }
 
     @RequestMapping(value = "/sp9/find_rodent_baitings_number_of_premises_baited_less_than", method = {RequestMethod.GET}, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<String> sp9(@RequestParam("max_number") Integer max_number) throws JsonProcessingException {
+    public ResponseEntity<String> sp9(@RequestParam("max_number") Integer max_number,
+                                      HttpServletRequest request,
+                                      @RequestParam(required = false) Long uid) throws JsonProcessingException {
+
+        Optional.ofNullable(uid).ifPresent(id -> userHistoryRepository.save(new UserHistory(id, request.getRequestURI(), new Date())));
 
         StoredProcedureQuery query = em
           .createStoredProcedureQuery("find_rodent_baitings_number_of_premises_baited_less_than")
@@ -233,7 +275,11 @@ public class ServiceRequestController {
     }
 
     @RequestMapping(value = "/sp10/find_rodent_baitings_number_of_premises_with_garbage_less_than", method = {RequestMethod.GET}, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<String> sp10(@RequestParam("max_number") Integer max_number) throws JsonProcessingException {
+    public ResponseEntity<String> sp10(@RequestParam("max_number") Integer max_number,
+                                       HttpServletRequest request,
+                                       @RequestParam(required = false) Long uid) throws JsonProcessingException {
+
+        Optional.ofNullable(uid).ifPresent(id -> userHistoryRepository.save(new UserHistory(id, request.getRequestURI(), new Date())));
 
         StoredProcedureQuery query = em
           .createStoredProcedureQuery("find_rodent_baitings_number_of_premises_with_garbage_less_than")
@@ -251,7 +297,11 @@ public class ServiceRequestController {
     }
 
     @RequestMapping(value = "/sp11/find_rodent_baitings_number_of_premises_with_rats_less_than", method = {RequestMethod.GET}, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<String> sp11(@RequestParam("max_number") Integer max_number) throws JsonProcessingException {
+    public ResponseEntity<String> sp11(@RequestParam("max_number") Integer max_number,
+                                       HttpServletRequest request,
+                                       @RequestParam(required = false) Long uid) throws JsonProcessingException {
+
+        Optional.ofNullable(uid).ifPresent(id -> userHistoryRepository.save(new UserHistory(id, request.getRequestURI(), new Date())));
 
         StoredProcedureQuery query = em
           .createStoredProcedureQuery("find_rodent_baitings_number_of_premises_with_rats_less_than")
@@ -269,7 +319,11 @@ public class ServiceRequestController {
     }
 
     @RequestMapping(value = "/sp12/find_police_districts_pot_holes_and_rodent_baiting", method = {RequestMethod.GET}, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<String> sp12(@RequestParam("input_date") @DateTimeFormat(pattern="yyyy-MM-dd") Date input_date) throws JsonProcessingException {
+    public ResponseEntity<String> sp12(@RequestParam("input_date") @DateTimeFormat(pattern="yyyy-MM-dd") Date input_date,
+                                       HttpServletRequest request,
+                                       @RequestParam(required = false) Long uid) throws JsonProcessingException {
+
+        Optional.ofNullable(uid).ifPresent(id -> userHistoryRepository.save(new UserHistory(id, request.getRequestURI(), new Date())));
 
         StoredProcedureQuery query = em
           .createStoredProcedureQuery("find_police_districts_pot_holes_and_rodent_baiting")

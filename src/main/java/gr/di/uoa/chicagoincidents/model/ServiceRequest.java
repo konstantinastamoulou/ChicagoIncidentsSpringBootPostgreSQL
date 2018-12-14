@@ -1,5 +1,7 @@
 package gr.di.uoa.chicagoincidents.model;
 
+import org.springframework.format.annotation.DateTimeFormat;
+
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -17,10 +19,12 @@ public class ServiceRequest {
     @GeneratedValue
     private Long id;
 
+    @DateTimeFormat(pattern="yyyy-MM-dd")
     private Date creationDate;
 
     private String status;
 
+    @DateTimeFormat(pattern="yyyy-MM-dd")
     private Date completionDate;
 
     private String serviceRequestNumber;

@@ -115,5 +115,4 @@ public class UserController {
           ? ResponseEntity.status(HttpStatus.OK).body("{\"message\":\"userexists\"}")
           : ResponseEntity.status(HttpStatus.OK).body("");
     }
-
 }

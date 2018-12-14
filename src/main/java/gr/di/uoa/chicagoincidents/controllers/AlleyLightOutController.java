@@ -4,7 +4,10 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.opencsv.CSVReader;
 import gr.di.uoa.chicagoincidents.model.AlleyLightOut;
+import gr.di.uoa.chicagoincidents.model.UserHistory;
 import gr.di.uoa.chicagoincidents.repositories.AlleyLightOutRepository;
+import gr.di.uoa.chicagoincidents.repositories.UserHistoryRepository;
+import gr.di.uoa.chicagoincidents.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
@@ -17,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileReader;
@@ -25,7 +29,9 @@ import java.io.PrintWriter;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.Locale;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/alley_light_out")
@@ -35,38 +41,31 @@ public class AlleyLightOutController {
     @Autowired
     private AlleyLightOutRepository alleyLightOutRepository;
 
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private UserHistoryRepository userHistoryRepository;
+
     @Value("${pageSize}")
     private int pageSize;
 
+    @RequestMapping(value = "/create", method = {RequestMethod.POST}, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<String> create(AlleyLightOut alleyLightOut,
+                                         HttpServletRequest request,
+                                         @RequestParam Long uid,
+                                         @RequestParam String token) throws JsonProcessingException {
 
-//    @RequestMapping(value="/create", method={RequestMethod.POST},produces = MediaType.APPLICATION_JSON_VALUE)
-//    public ResponseEntity<String> create(
-//            @RequestParam() @Valid String current_activity,
-//            @RequestParam("most_recent_action") @Valid String most_recent_action,
-//            @RequestParam("SSA") @Valid String SSA,
-//            @RequestParam("license_plate") @Valid String license_plate,
-//            @RequestParam("vehicle_model") @Valid String vehicle_model,
-//            @RequestParam("vehicle_color") @Valid String vehicle_color,
-//            @RequestParam("days_vehicle_reported_as_parked") @Valid String days_vehicle_reported_as_parked
-//    ) throws JsonProcessingException {
-//
-//        AbandonedVehicle abandonedVehicle = new AbandonedVehicle();
-//        abandonedVehicle.setCurrentActivity(current_activity);
-//        abandonedVehicle.setMostRecentAction(most_recent_action);
-//        abandonedVehicle.setSSA(SSA);
-//        abandonedVehicle.setLicensePlate(license_plate);
-//        abandonedVehicle.setVehicleModel(vehicle_model);
-//        abandonedVehicle.setVehicleColor(vehicle_color);
-//        abandonedVehicle.setDaysVehicleReportedAsParked(days_vehicle_reported_as_parked);
-//
-//        abandonedVehicleRepository.save(abandonedVehicle);
-//
-//        ObjectMapper mapper = new ObjectMapper();
-//        String jsonResult = mapper.writerWithDefaultPrettyPrinter()
-//                .writeValueAsString(abandonedVehicle);
-//
-//        return ResponseEntity.status(HttpStatus.OK).body(jsonResult);
-//    }
+        if (!userRepository.findByIdAndToken(uid, token).isPresent()) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("");
+        Optional.ofNullable(uid).ifPresent(id -> userHistoryRepository.save(new UserHistory(id, request.getRequestURI(), new Date())));
+
+        alleyLightOutRepository.save(alleyLightOut);
+
+        ObjectMapper mapper = new ObjectMapper();
+        String jsonResult = mapper.writerWithDefaultPrettyPrinter()
+          .writeValueAsString(alleyLightOut);
+        return ResponseEntity.status(HttpStatus.OK).body(jsonResult);
+    }
 
     @RequestMapping(value="/list", method={RequestMethod.GET},produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<String> list(

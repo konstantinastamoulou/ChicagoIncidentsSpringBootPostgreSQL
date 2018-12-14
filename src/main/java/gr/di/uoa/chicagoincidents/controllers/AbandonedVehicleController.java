@@ -7,9 +7,7 @@ import gr.di.uoa.chicagoincidents.model.AbandonedVehicle;
 import gr.di.uoa.chicagoincidents.model.UserHistory;
 import gr.di.uoa.chicagoincidents.repositories.AbandonedVehicleRepository;
 import gr.di.uoa.chicagoincidents.repositories.UserHistoryRepository;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
-import io.swagger.annotations.ApiOperation;
+import gr.di.uoa.chicagoincidents.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
@@ -48,6 +46,9 @@ public class AbandonedVehicleController {
     private AbandonedVehicleRepository abandonedVehicleRepository;
 
     @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
     private UserHistoryRepository userHistoryRepository;
 
     @PersistenceContext
@@ -56,26 +57,13 @@ public class AbandonedVehicleController {
     @Value("${pageSize}")
     private int pageSize;
 
-    @ApiOperation(value = "av creation", nickname = "createAV")
-    @ApiImplicitParams({
-      @ApiImplicitParam(
-        name = "status",
-        value = "status",
-        required = true,
-        dataType = "string",
-        paramType = "query",
-        defaultValue = "Completed - Dup"),
-      @ApiImplicitParam(
-        name = "vehicleModel",
-        value = "vehicleModel",
-        required = true,
-        dataType = "string",
-        paramType = "query",
-        defaultValue = "Jeep/Cherokee")
-    })
     @RequestMapping(value = "/create", method = {RequestMethod.POST}, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<String> create(HttpServletRequest request, AbandonedVehicle abandonedVehicle, @RequestParam(required = true) Long uid) throws JsonProcessingException {
+    public ResponseEntity<String> create(AbandonedVehicle abandonedVehicle,
+                                         HttpServletRequest request,
+                                         @RequestParam Long uid,
+                                         @RequestParam String token) throws JsonProcessingException {
 
+        if (!userRepository.findByIdAndToken(uid, token).isPresent()) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("");
         Optional.ofNullable(uid).ifPresent(id -> userHistoryRepository.save(new UserHistory(id, request.getRequestURI(), new Date())));
 
         abandonedVehicleRepository.save(abandonedVehicle);
